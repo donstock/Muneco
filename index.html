@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="El Muñeco que Habla">
+    <title>El Muñeco que Habla</title>
+    
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkVsIE11w7FlY28gcXVlIEhhYmxhIiwKICAic2hvcnRfbmFtZSI6ICJNdcOxZWNvIEhhYmxhIiwKICAiZGVzY3JpcHRpb24iOiAiQXNpc3RlbnRlIGRlIHZveiBjb24gSUEiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzIxOTZGMyIsCiAgInRoZW1lX2NvbG9yIjogIiMyMTk2RjMiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyBmaWxsPSdub25lJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnJTNFJTNDY2lyY2xlIGN4PSc5NicgY3k9Jzk2JyByPSc5NicgZmlsbD0nJTIzMjE5NkYzJy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PSc5NicgZm9udC1mYW1pbHk9J0FyaWFsJyBmb250LXNpemU9Jzg0JyBmaWxsPSd3aGl0ZScgdGV4dC1hbmNob3I9J21pZGRsZScgZG9taW5hbnQtYmFzZWxpbmU9J21pZGRsZSclM0Xwn6SkJTNDL3RleHQlM0UlM0Mvc3ZnJTNFPCIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #0D47A1 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            overflow-y: auto; /* Permitir scroll vertical */
+            position: relative;
+        }
+
+        /* Animación de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #FFF, #E3F2FD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* Muñeco animado */
+        .puppet-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .puppet {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            animation: bounce 2s ease-in-out infinite;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .puppet.speaking {
+            animation: speak 0.5s ease-in-out infinite;
+        }
+
+        .puppet::before {
+            content: '👤';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .puppet.listening::before {
+            content: '👂';
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+
+        .puppet.speaking::before {
+            content: '🗣️';
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes speak {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 5px #2196F3); }
+            100% { filter: drop-shadow(0 0 20px #64B5F6); }
+        }
+
+        .api-config {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .config-content.open {
+            max-height: 300px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #64B5F6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            max-height: 250px;
+            scroll-behavior: smooth;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 18px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #64B5F6, #42A5F5);
+            margin-left: auto;
+            text-align: right;
+            box-shadow: 0 4px 15px rgba(100, 181, 246, 0.3);
+        }
+
+        .message.assistant {
+            background: rgba(255, 255, 255, 0.2);
+            margin-right: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #64B5F6;
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.2);
+        }
+
+        #messageInput::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+            user-select: none;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45A049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #FF5722, #E64A19);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .btn-voice {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .recording {
+            background: linear-gradient(135deg, #F44336, #D32F2F) !important;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .voice-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-style: italic;
+            opacity: 0.9;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #FFCDD2;
+            padding: 12px;
+            border-radius: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #F44336;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .voice-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        .voice-settings label {
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .voice-settings select {
+            padding: 8px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            font-size: 0.85rem;
+        }
+
+        .demo-info {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 12px;
+            border-radius: 15px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            border-left: 4px solid #4CAF50;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Optimizaciones para Android */
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .puppet {
+                width: 100px;
+                height: 100px;
+            }
+
+            .puppet::before {
+                font-size: 2.5rem;
+            }
+
+            .messages {
+                max-height: 200px;
+            }
+
+            .voice-settings {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+
+            .btn-voice {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Landscape mode */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .puppet-container {
+                margin: 10px 0;
+            }
+
+            .puppet {
+                width: 80px;
+                height: 80px;
+            }
+
+            .puppet::before {
+                font-size: 2rem;
+            }
+
+            .messages {
+                max-height: 150px;
+            }
+
+            .header {
+                padding: 10px;
+            }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid white;
+            }
+            
+            .message {
+                border: 1px solid rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 El Muñeco que Habla</h1>
+            <p class="subtitle">Tu compañero de voz inteligente</p>
+        </div>
+
+        <div class="puppet-container">
+            <div class="puppet" id="puppet"></div>
+        </div>
+
+        <div class="api-config">
+            <button class="config-toggle" id="configToggle">
+                ⚙️ Configuración <span id="toggleIcon">▼</span>
+            </button>
+            <div class="config-content" id="configContent">
+                <div class="input-group">
+                    <label for="apiKey">Clave API de Groq (opcional):</label>
+                    <input type="password" id="apiKey" placeholder="Ingresa tu API key o déjalo vacío para modo demo">
+                    <div class="demo-info">
+                        🎉 <strong>Modo Demo Activo:</strong> Todas las funciones de voz funcionan sin API key
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="modelSelect">Modelo de IA:</label>
+                    <select id="modelSelect">
+                        <option value="llama-3.1-8b-instant">Llama 3.1 8B (Rápido)</option>
+                        <option value="llama-3.1-70b-versatile">Llama 3.1 70B (Potente)</option>
+                        <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <strong>🎭 El Muñeco:</strong><br>
+                    ¡Hola! Soy tu muñeco parlanchín. Puedo escucharte y responderte con mi voz. 
+                    ¡Toca el micrófono morado y háblame! 🎤
+                </div>
+            </div>
+            
+            <div class="status" id="status">Listo para chatear contigo</div>
+            
+            <div class="controls">
+                <div class="input-row">
+                    <input type="text" id="messageInput" placeholder="Escribe aquí o usa el micrófono...">
+                    <button class="btn btn-primary" id="sendBtn">
+                        📤
+                    </button>
+                </div>
+                
+                <div class="voice-controls">
+                    <button class="btn btn-secondary" id="requestPermissionBtn" title="Solicitar permisos del micrófono">
+                        Permisos
+                    </button>
+                    <button class="btn btn-voice" id="recordBtn" title="Hablar con el muñeco">
+                        🎤
+                    </button>
+                    <button class="btn btn-secondary" id="stopSpeakBtn" style="display: none;" title="Silenciar">
+                        🔇
+                    </button>
+                </div>
+            </div>
+
+            <div class="voice-settings">
+                <label>🎭 Voz del Muñeco:
+                    <select id="voiceSelect">
+                        <option value="">Cargando voces...</option>
+                    </select>
+                </label>
+                
+                <label>⚡ Velocidad:
+                    <select id="speechRate">
+                        <option value="0.8">Lenta</option>
+                        <option value="1" selected>Normal</option>
+                        <option value="1.2">Rápida</option>
+                    </select>
+                </label>
+                
+                <label>🎵 Tono:
+                    <select id="speechPitch">
+                        <option value="0.8">Grave</option>
+                        <option value="1" selected>Normal</option>
+                        <option value="1.2">Agudo</option>
+                    </select>
+                </label>
+                
+                <label>🔊 Volumen:
+                    <select id="speechVolume">
+                        <option value="0.5">Bajo</option>
+                        <option value="0.8">Medio</option>
+                        <option value="1" selected>Alto</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ElMunecoQueHabla {
+            constructor() {
+                this.apiKey = '';
+                this.model = 'llama-3.1-8b-instant';
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.voices = [];
+                this.isListening = false;
+                this.isSpeaking = false;
+   
