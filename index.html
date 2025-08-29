@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="El Muñeco que Habla">
+    <title>El Muñeco que Habla</title>
+    
+    <!-- PWA Manifest (embebido) -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkVsIE11w7FlY28gcXVlIEhhYmxhIiwKICAic2hvcnRfbmFtZSI6ICJNdcOxZWNvIEhhYmxhIiwKICAiZGVzY3JpcHRpb24iOiAiQXNpc3RlbnRlIGRlIHZveiBjb24gSUEiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzIxOTZGMyIsCiAgInRoZW1lX2NvbG9yIjogIiMyMTk2RjMiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyBmaWxsPSdub25lJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnJTNFJTNDY2lyY2xlIGN4PSc5NicgY3k9Jzk2JyByPSc5NicgZmlsbD0nJTIzMjE5NkYzJy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PSc5NicgZm9udC1mYW1pbHk9J0FyaWFsJyBmb250LXNpemU9Jzg0JyBmaWxsPSd3aGl0ZScgdGV4dC1hbmNob3I9J21pZGRsZScgZG9taW5hbnQtYmFzZWxpbmU9J21pZGRsZSclM0Xwn6SkJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+
+    <style>
+        /* --- Styles adaptados desde tu versión original --- */
+        * { margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color: transparent; }
+        html,body { height:100%; }
+        body {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #0D47A1 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing:antialiased;
+        }
+        body::before {
+            content: '';
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite alternate;
+            pointer-events:none;
+            z-index:0;
+        }
+        @keyframes float { 0% { transform: translateY(0px);} 100% { transform: translateY(-10px);} }
+
+        .container { max-width:1000px; margin:0 auto; padding:18px; display:flex; flex-direction:column; min-height:100vh; position:relative; z-index:1; gap:12px; }
+        .header { text-align:center; padding:18px; background:rgba(255,255,255,0.06); backdrop-filter: blur(12px); border-radius:16px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 8px 32px rgba(0,0,0,0.15); }
+        .header h1 { font-size:2.0rem; background:linear-gradient(45deg,#FFF,#E3F2FD); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:6px; text-shadow:2px 2px 8px rgba(0,0,0,0.2); }
+        .subtitle { font-size:0.95rem; opacity:0.85; margin-top:6px; }
+
+        .puppet-container { display:flex; justify-content:center; margin:14px 0; }
+        .puppet { width:120px; height:120px; background:linear-gradient(135deg,#FF9800,#F57C00); border-radius:50%; position:relative; box-shadow:0 8px 25px rgba(0,0,0,0.3); animation:bounce 2s ease-in-out infinite; border:4px solid rgba(255,255,255,0.28); display:flex; align-items:center; justify-content:center; font-size:3rem; }
+        .puppet.speaking { animation:speak 0.5s ease-in-out infinite; }
+        .puppet.listening { animation:glow 1s ease-in-out infinite alternate; filter: drop-shadow(0 0 10px rgba(100,181,246,0.6)); }
+        @keyframes bounce { 0%,100% { transform:translateY(0);} 50% { transform:translateY(-10px);} }
+        @keyframes speak { 0%,100% { transform:scale(1);} 50% { transform:scale(1.1);} }
+        @keyframes glow { 0% { filter: drop-shadow(0 0 5px #2196F3);} 100% { filter: drop-shadow(0 0 20px #64B5F6);} }
+
+        .api-config, .chat-container { background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); border-radius:14px; padding:12px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 8px 24px rgba(0,0,0,0.12); }
+        .config-toggle { background:none;border:none;color:white;font-size:1.05rem;padding:10px;cursor:pointer;display:flex;align-items:center;gap:10px;width:100%;text-align:left; }
+        .config-content { max-height:0; overflow:hidden; transition: max-height 0.32s ease; }
+        .config-content.open { max-height:320px; }
+
+        .input-group { margin-bottom:12px; }
+        .input-group label { display:block;margin-bottom:6px;font-weight:500;font-size:0.92rem;}
+        .input-group input, .input-group select { width:100%; padding:10px 12px; border-radius:22px; border:2px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.06); color:white; font-size:0.98rem; }
+
+        .messages { flex:1; overflow-y:auto; margin-bottom:12px; padding:10px; background:rgba(0,0,0,0.12); border-radius:12px; max-height:320px; scroll-behavior:smooth; }
+        .message { margin-bottom:12px; padding:12px; border-radius:16px; max-width:85%; word-wrap:break-word; animation:slideIn 0.25s ease; position:relative; }
+        .message.user { background: linear-gradient(135deg,#64B5F6,#42A5F5); margin-left:auto; text-align:right; }
+        .message.assistant { background: rgba(255,255,255,0.12); margin-right:auto; text-align:left; }
+        @keyframes slideIn { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} }
+
+        .controls { display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
+        .input-row { display:flex; gap:8px; align-items:center; }
+        #messageInput { flex:1; padding:12px 14px; border-radius:22px; border:2px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.06); color:white; font-size:1rem; }
+        .btn { padding:12px 18px; border:none; border-radius:22px; cursor:pointer; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; min-width:44px; min-height:44px; }
+        .btn-primary { background: linear-gradient(135deg,#4CAF50,#45A049); color:white; }
+        .btn-secondary { background: linear-gradient(135deg,#FF5722,#E64A19); color:white; }
+        .btn-voice { background: linear-gradient(135deg,#9C27B0,#7B1FA2); color:white; width:60px; height:60px; border-radius:50%; font-size:1.3rem; }
+
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+        .recording { background: linear-gradient(135deg,#F44336,#D32F2F) !important; animation:pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.05); opacity:0.85; } }
+
+        .voice-settings { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px; }
+        .voice-settings label { font-size:0.9rem; display:flex; flex-direction:column; gap:6px; color:white; }
+
+        .status { text-align:center; margin:10px 0; font-style:italic; opacity:0.95; padding:8px; background:rgba(0,0,0,0.08); border-radius:12px; font-size:0.95rem; }
+        .error { background: rgba(244,67,54,0.2); color:#FFCDD2; padding:12px; border-radius:12px; margin:10px 0; border-left:4px solid #F44336; animation:shake 0.45s ease; }
+        @keyframes shake { 0%,100% { transform:translateX(0);} 25% { transform:translateX(-6px);} 75% { transform:translateX(6px);} }
+
+        .demo-info { background: rgba(76,175,80,0.14); padding:10px; border-radius:10px; margin-top:6px; font-size:0.9rem; border-left:4px solid #4CAF50; }
+
+        @media screen and (max-width:480px) {
+            .header h1 { font-size:1.6rem; }
+            .puppet { width:100px; height:100px; font-size:2.6rem; }
+            .messages { max-height:220px; }
+            .voice-settings { grid-template-columns:1fr; }
+            .btn-voice { width:50px; height:50px; font-size:1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 El Muñeco que Habla</h1>
+            <p class="subtitle">Tu compañero de voz inteligente</p>
+        </div>
+
+        <div class="puppet-container">
+            <div class="puppet" id="puppet">👤</div>
+        </div>
+
+        <div class="api-config">
+            <button class="config-toggle" id="configToggle">
+                ⚙️ Configuración <span id="toggleIcon">▼</span>
+            </button>
+            <div class="config-content" id="configContent">
+                <div class="input-group">
+                    <label for="apiKey">Clave API de Groq (opcional):</label>
+                    <input type="password" id="apiKey" placeholder="Ingresa tu API key o déjalo vacío para modo demo">
+                    <div class="demo-info" id="demoInfo">
+                        🎉 <strong>Modo Demo Activo:</strong> Todas las funciones de voz funcionan sin API key
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="modelSelect">Modelo de IA:</label>
+                    <select id="modelSelect">
+                        <option value="llama-3.1-8b-instant">Llama 3.1 8B (Rápido)</option>
+                        <option value="llama-3.1-70b-versatile">Llama 3.1 70B (Potente)</option>
+                        <option value="mixtral-8x7b-32768">Mixtral 8x7b</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message assistant">
+                    <strong>🎭 El Muñeco:</strong><br>
+                    ¡Hola! Soy tu muñeco parlanchín. Puedo escucharte y responderte con mi voz. 
+                    ¡Toca el micrófono morado y háblame! 🎤
+                </div>
+            </div>
+            
+            <div class="status" id="status">Listo para chatear contigo</div>
+            
+            <div class="controls">
+                <div class="input-row">
+                    <input type="text" id="messageInput" placeholder="Escribe aquí o usa el micrófono...">
+                    <button class="btn btn-primary" id="sendBtn">📤</button>
+                </div>
+                
+                <div class="voice-controls" style="display:flex;justify-content:center;gap:10px;margin-top:8px;">
+                    <button class="btn btn-voice" id="recordBtn" title="Hablar con el muñeco">🎤</button>
+                    <button class="btn btn-secondary" id="stopSpeakBtn" style="display:none;" title="Silenciar">🔇</button>
+                </div>
+            </div>
+
+            <div class="voice-settings" id="voiceSettings">
+                <label>🎭 Voz del Muñeco:
+                    <select id="voiceSelect"><option value="">Cargando voces...</option></select>
+                </label>
+                <label>⚡ Velocidad:
+                    <select id="speechRate"><option value="0.8">Lenta</option><option value="1" selected>Normal</option><option value="1.2">Rápida</option></select>
+                </label>
+                <label>🎵 Tono:
+                    <select id="speechPitch"><option value="0.8">Grave</option><option value="1" selected>Normal</option><option value="1.2">Agudo</option></select>
+                </label>
+                <label>🔊 Volumen:
+                    <select id="speechVolume"><option value="0.5">Bajo</option><option value="0.8">Medio</option><option value="1" selected>Alto</option></select>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ElMunecoQueHabla {
+            constructor() {
+                // Estado
+                this.apiKey = '';
+                this.model = 'llama-3.1-8b-instant';
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.voices = [];
+                this.isListening = false;
+                this.isSpeaking = false;
+                this.conversationHistory = [];
+                this.deferredPrompt = null; // CORRECCIÓN: propiedad de la clase para PWA
+
+                // Elementos
+                this.initElements();
+
+                // Inicialización
+                this.setupSpeechRecognition();
+                this.loadVoices();
+                this.setupEventListeners();
+                this.setupPWA();
+            }
+
+            initElements() {
+                this.elements = {
+                    puppet: document.getElementById('puppet'),
+                    configToggle: document.getElementById('configToggle'),
+                    configContent: document.getElementById('configContent'),
+                    toggleIcon: document.getElementById('toggleIcon'),
+                    apiKey: document.getElementById('apiKey'),
+                    modelSelect: document.getElementById('modelSelect'),
+                    messages: document.getElementById('messages'),
+                    messageInput: document.getElementById('messageInput'),
+                    sendBtn: document.getElementById('sendBtn'),
+                    recordBtn: document.getElementById('recordBtn'),
+                    stopSpeakBtn: document.getElementById('stopSpeakBtn'),
+                    status: document.getElementById('status'),
+                    voiceSelect: document.getElementById('voiceSelect'),
+                    speechRate: document.getElementById('speechRate'),
+                    speechPitch: document.getElementById('speechPitch'),
+                    speechVolume: document.getElementById('speechVolume'),
+                    demoInfo: document.getElementById('demoInfo')
+                };
+            }
+
+            setupPWA() {
+                // Registrar Service Worker dinámicamente con Blob (funciona desde un único HTML)
+                if ('serviceWorker' in navigator) {
+                    const swCode = `
+                        const CACHE_NAME = 'el-muneco-v1';
+                        const urlsToCache = ['./'];
+                        self.addEventListener('install', event => {
+                            event.waitUntil(
+                                caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                            );
+                        });
+                        self.addEventListener('fetch', event => {
+                            event.respondWith(
+                                caches.match(event.request).then(resp => resp || fetch(event.request))
+                            );
+                        });
+                    `;
+                    try {
+                        const blob = new Blob([swCode], { type: 'application/javascript' });
+                        const swUrl = URL.createObjectURL(blob);
+                        navigator.serviceWorker.register(swUrl).then((reg) => {
+                            // revoke object URL (liberar) tras registro
+                            URL.revokeObjectURL(swUrl);
+                            console.log('Service Worker registrado (dinámico).', reg);
+                        }).catch((err) => {
+                            console.warn('No se pudo registrar SW dinámico:', err);
+                        });
+                    } catch (err) {
+                        console.warn('SW dinámico no soportado:', err);
+                    }
+                }
+
+                // Instalación PWA: capturamos el evento y guardamos en la propiedad this.deferredPrompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    this.showInstallPrompt();
+                });
+            }
+
+            showInstallPrompt() {
+                // Evitar duplicados
+                if (document.getElementById('installPromptDiv')) return;
+
+                const installDiv = document.createElement('div');
+                installDiv.id = 'installPromptDiv';
+                installDiv.className = 'demo-info';
+                installDiv.style.cursor = 'pointer';
+                installDiv.style.marginTop = '10px';
+                installDiv.textContent = '📱 ¡Instalar App! Toca aquí para instalar El Muñeco en tu móvil';
+                // Usamos arrow function para conservar `this`
+                installDiv.onclick = async () => {
+                    if (!this.deferredPrompt) return;
+                    try {
+                        this.deferredPrompt.prompt();
+                        const choice = await this.deferredPrompt.userChoice;
+                        if (choice.outcome === 'accepted') {
+                            installDiv.remove();
+                        }
+                    } catch (err) {
+                        console.warn('Install prompt error:', err);
+                    } finally {
+                        this.deferredPrompt = null;
+                    }
+                };
+                // insertarlo en messages
+                this.elements.messages.appendChild(installDiv);
+                this.scrollToBottom();
+            }
+
+            setupSpeechRecognition() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    this.showError('Tu dispositivo no soporta reconocimiento de voz. Necesitas Chrome o Edge.');
+                    this.elements.recordBtn.disabled = true;
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+                
+                this.recognition.continuous = false;
+                this.recognition.interimResults = false;
+                this.recognition.lang = 'es-ES';
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.elements.recordBtn.classList.add('recording');
+                    this.elements.recordBtn.innerHTML = '🔴';
+                    this.elements.puppet.classList.add('listening');
+                    this.updateStatus('👂 Escuchando... Habla ahora');
+                };
+
+                this.recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    console.log('Transcripción:', transcript);
+                    this.elements.messageInput.value = transcript;
+                    this.sendMessage();
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Error de reconocimiento:', event.error);
+                    let errorMsg = 'Error de micrófono';
+                    switch(event.error) {
+                        case 'not-allowed':
+                        case 'permission-denied':
+                            errorMsg = 'Permisos de micrófono denegados';
+                            break;
+                        case 'no-speech':
+                            errorMsg = 'No se detectó voz. Inténtalo de nuevo';
+                            break;
+                        case 'network':
+                            errorMsg = 'Error de conexión';
+                            break;
+                    }
+                    this.showError(errorMsg);
+                    this.stopListening();
+                };
+
+                this.recognition.onend = () => {
+                    // cuando termine la escucha, actualizamos estado
+                    this.stopListening();
+                };
+            }
+
+            loadVoices() {
+                const updateVoices = () => {
+                    this.voices = this.synthesis.getVoices() || [];
+                    // Preferir voces en español
+        
