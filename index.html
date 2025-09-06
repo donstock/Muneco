@@ -1,0 +1,39 @@
+%%writefile chatbot.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>El muñeco que habla</title>
+</head>
+<body>
+    <div id="container">
+        <h2>El muñeco que habla</h2>
+
+        <div id="api-key-section">
+            <label for="replicate-api-key">Clave API de Replicate:</label>
+            <input type="password" id="replicate-api-key" placeholder="Introduce tu clave API de Replicate">
+        </div>
+
+        <div id="chat-interface">
+            <div id="chat-display">
+                <!-- Chat messages will appear here -->
+            </div>
+            <input type="text" id="user-message" placeholder="Escribe tu mensaje aquí...">
+        </div>
+
+        <div id="voice-interaction-section">
+             <label for="tts-voice">Selecciona Voz TTS:</label>
+            <select id="tts-voice">
+                <option value="">--Selecciona una voz--</option>
+                <option value="voice1">Voz 1</option>
+                <option value="voice2">Voz 2</option>
+                <!-- More voice options can be added here -->
+            </select>
+            <button id="voice-button">Hablar con Llama</button>
+        </div>
+
+        <div id="status-display">
+            <!-- Status messages will appear here -->
+        </div>
+    </div>
+</body>
+</html>
