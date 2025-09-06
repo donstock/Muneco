@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El muñeco que habla</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #api-key-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        #api-key-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        #replicate-api-key {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #replicate-api-key:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #chat-interface {
+            margin-bottom: 25px;
+        }
+
+        #chat-display {
+            height: 300px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        #user-message {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #user-message:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #voice-interaction-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(118, 75, 162, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #764ba2;
+        }
+
+        #voice-interaction-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        #tts-voice {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        #tts-voice:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        #voice-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #voice-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.3);
+        }
+
+        #voice-button:active {
+            transform: translateY(0);
+        }
+
+        #voice-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #status-display {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border: 2px solid rgba(72, 187, 120, 0.3);
+        }
+
+        .status-error {
+            background: rgba(245, 101, 101, 0.1);
+            color: #c53030;
+            border: 2px solid rgba(245, 101, 101, 0.3);
+        }
+
+        .status-info {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4c51bf;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            #container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            #chat-display {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>🤖 El muñeco que habla</h2>
+
+        <div id="api-key-section">
+            <label for="replicate-api-key">🔑 Clave API de Replicate:</label>
+            <input type="password" id="replicate-api-key" placeholder="Introduce tu clave API de Replicate aquí...">
+        </div>
+
+        <div id="chat-interface">
+            <div id="chat-display">
+                <div class="message bot-message">
+                    ¡Hola! Soy tu muñeco que habla. Introduce tu clave API de Replicate y podremos empezar a chatear. 🎭
+                </div>
+            </div>
+            <input type="text" id="user-message" placeholder="Escribe tu mensaje aquí..." disabled>
+        </div>
+
+        <div id="voice-interaction-section">
+            <label for="tts-voice">🎵 Selecciona Voz TTS:</label>
+            <select id="tts-voice">
+                <option value="">--Selecciona una voz--</option>
+                <option value="voice1">Voz Femenina</option>
+                <option value="voice2">Voz Masculina</option>
+                <option value="voice3">Voz Infantil</option>
+                <option value="voice4">Voz Robótica</option>
+            </select>
+            <button id="voice-button" disabled>🎤 Hablar con Llama</button>
+        </div>
+
+        <div id="status-display">
+            <span>Introduce tu clave API para comenzar...</span>
+        </div>
+    </div>
+
+    <script>
+        class ChatBot {
+            constructor() {
+                this.apiKey = '';
+                this.chatDisplay = document.getElementById('chat-display');
+                this.userMessageInput = document.getElementById('user-message');
+                this.statusDisplay = document.getElementById('status-display');
+                this.voiceButton = document.getElementById('voice-button');
+                this.apiKeyInput = document.getElementById('replicate-api-key');
+                this.ttsVoiceSelect = document.getElementById('tts-voice');
+                
+                this.initializeEventListeners();
+                this.conversationHistory = [];
+            }
+
+            initializeEventListeners() {
+                // API Key input
+                this.apiKeyInput.addEventListener('input', (e) => {
+                    this.handleApiKeyChange(e.target.value);
+                });
+
+                // User message input
+                this.userMessageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Voice button
+                this.voiceButton.addEventListener('click', () => {
+                    this.handleVoiceInteraction();
+                });
+
+                // TTS Voice selection
+                this.ttsVoiceSelect.addEventListener('change', () => {
+                    this.updateVoiceButtonState();
+                });
+            }
+
+            handleApiKeyChange(apiKey) {
+                this.apiKey = apiKey.trim();
+                
+                if (this.apiKey) {
+                    this.userMessageInput.disabled = false;
+                    this.updateStatus('API Key configurada correctamente. ¡Listo para chatear!', 'success');
+                    this.userMessageInput.placeholder = 'Escribe tu mensaje aquí...';
+                    this.userMessageInput.focus();
+                } else {
+                    this.userMessageInput.disabled = true;
+                    this.updateStatus('Introduce tu clave API para comenzar...', 'info');
+                    this.userMessageInput.placeholder = 'Escribe tu mensaje aquí...';
+                }
+                
+                this.updateVoiceButtonState();
+            }
+
+            updateVoiceButtonState() {
+                const hasApiKey = this.apiKey !== '';
+                const hasVoice = this.ttsVoiceSelect.value !== '';
+                
+                this.voiceButton.disabled = !hasApiKey || !hasVoice;
+                
+                if (hasApiKey && hasVoice) {
+                    this.voiceButton.textContent = '🎤 Hablar con Llama';
+                } else if (!hasApiKey) {
+                    this.voiceButton.textContent = '🔑 Necesita API Key';
+                } else {
+                    this.voiceButton.textContent = '🎵 Selecciona una voz';
+                }
+            }
+
+            async sendMessage() {
+                const message = this.userMessageInput.value.trim();
+                if (!message || !this.apiKey) return;
+
+                // Add user message to chat
+                this.addMessageToChat(message, 'user');
+                this.userMessageInput.value = '';
+
+                // Show typing indicator
+                this.updateStatus('El muñeco está pensando...', 'info');
+                
+                try {
+                    // Simulate API call to Replicate (replace with actual API call)
+                    const response = await this.callReplicateAPI(message);
+                    this.addMessageToChat(response, 'bot');
+                    this.updateStatus('Respuesta recibida correctamente', 'success');
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.addMessageToChat('Lo siento, hubo un error al procesar tu mensaje. Por favor, verifica tu clave API.', 'bot');
+                    this.updateStatus('Error al comunicarse con el servidor', 'error');
+                }
+            }
+
+            async callReplicateAPI(message) {
+                // This is a mock implementation
+                // Replace with actual Replicate API call
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const responses = [
+                            '¡Hola! Soy tu muñeco que habla. ¿En qué puedo ayudarte hoy?',
+                            'Esa es una pregunta muy interesante. Déjame pensar...',
+                            'Me encanta conversar contigo. ¿Qué más te gustaría saber?',
+                            'Como muñeco que habla, tengo muchas historias que contar.',
+                            'Esa es una perspectiva fascinante. ¿Podrías contarme más?'
+                        ];
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        resolve(randomResponse);
+                    }, 1000 + Math.random() * 2000);
+                });
+            }
+
+            addMessageToChat(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.textContent = message;
+                
+                this.chatDisplay.appendChild(messageDiv);
+                this.chatDisplay.scrollTop = this.chatDisplay.scrollHeight;
+
+                // Store in conversation history
+                this.conversationHistory.push({ sender, message, timestamp: new Date() });
+            }
+
+            updateStatus(message, type) {
+                this.statusDisplay.innerHTML = '';
+                this.statusDisplay.className = `status-${type}`;
+                
+                if (type === 'info' && message.includes('pensando')) {
+                    const loader = document.createElement('span');
+                    loader.className = 'loading';
+                    this.statusDisplay.appendChild(loader);
+                }
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = message;
+                this.statusDisplay.appendChild(textSpan);
+            }
+
+            async handleVoiceInteraction() {
+                if (!this.apiKey || !this.ttsVoiceSelect.value) return;
+
+                this.voiceButton.disabled = true;
+                this.updateStatus('Iniciando interacción de voz...', 'info');
+
+                try {
+                    // Check if browser supports Web Speech API
+                    if ('speechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                        await this.startVoiceRecognition();
+                    } else {
+                        throw new Error('Tu navegador no soporta reconocimiento de voz');
+                    }
+                } catch (error) {
+                    console.error('Voice interaction error:', error);
+                    this.updateStatus('Error en la interacción de voz: ' + error.message, 'error');
+                } finally {
+                    this.voiceButton.disabled = false;
+                    this.updateVoiceButtonState();
+                }
+            }
+
+            async startVoiceRecognition() {
+                return new Promise((resolve, reject) => {
+                    const SpeechRecognition = window.speechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    
+                    recognition.lang = 'es-ES';
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+
+                    recognition.onstart = () => {
+                        this.updateStatus('🎤 Escuchando... Habla ahora', 'info');
+                        this.voiceButton.textContent = '🔴 Grabando...';
+                    };
+
+                    recognition.onresult = async (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.updateStatus('Procesando tu mensaje de voz...', 'info');
+                        
+                        // Add voice message to chat and get response
+                        this.addMessageToChat(transcript, 'user');
+                        
+                        try {
+                            const response = await this.callReplicateAPI(transcript);
+                            this.addMessageToChat(response, 'bot');
+                            
+                            // Convert response to speech
+                            await this.textToSpeech(response);
+                            
+                            this.updateStatus('Interacción de voz completada', 'success');
+                        } catch (error) {
+                            throw error;
+                        }
+                        
+                        resolve();
+                    };
+
+                    recognition.onerror = (event) => {
+                        reject(new Error('Error de reconocimiento: ' + event.error));
+                    };
+
+                    recognition.onend = () => {
+                        this.voiceButton.textContent = '🎤 Hablar con Llama';
+                    };
+
+                    recognition.start();
+                });
+            }
+
+            async textToSpeech(text) {
+                if ('speechSynthesis' in window) {
+                    return new Promise((resolve) => {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'es-ES';
+                        utterance.rate = 0.9;
+                        utterance.pitch = 1.0;
+                        
+                        // Set voice based on selection
+                        const voices = speechSynthesis.getVoices();
+                        const selectedVoice = this.ttsVoiceSelect.value;
+                        
+                        if (voices.length > 0) {
+                            switch(selectedVoice) {
+                                case 'voice1':
+                                    utterance.voice = voices.find(voice => voice.name.includes('female')) || voices[0];
+                                    break;
+                                case 'voice2':
+                                    utterance.voice = voices.find(voice => voice.name.includes('male')) || voices[1] || voices[0];
+                                    break;
+                                case 'voice3':
+                                    utterance.pitch = 1.5;
+                                    utterance.rate = 1.1;
+                                    break;
+                                case 'voice4':
+                                    utterance.pitch = 0.7;
+                                    utterance.rate = 0.8;
+                                    break;
+                            }
+                        }
+                        
+                        utterance.onend = () => resolve();
+                        speechSynthesis.speak(utterance);
+                    });
+                }
+            }
+        }
+
+        // Initialize the chatbot when the page loads
+        document.addEventLi
