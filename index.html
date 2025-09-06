@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El muñeco que habla</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #api-key-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        #api-key-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        #replicate-api-key {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #replicate-api-key:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #chat-interface {
+            margin-bottom: 25px;
+        }
+
+        #chat-display {
+            height: 300px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+            margin-bottom: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        #input-container {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        #user-message {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            resize: none;
+        }
+
+        #user-message:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #send-button {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        #send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        #send-button:active {
+            transform: translateY(0);
+        }
+
+        #send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #voice-interaction-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(118, 75, 162, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #764ba2;
+        }
+
+        #voice-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #voice-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.3);
+        }
+
+        #voice-button:active {
+            transform: translateY(0);
+        }
+
+        #voice-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #status-display {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border: 2px solid rgba(72, 187, 120, 0.3);
+        }
+
+        .status-error {
+            background: rgba(245, 101, 101, 0.1);
+            color: #c53030;
+            border: 2px solid rgba(245, 101, 101, 0.3);
+        }
+
+        .status-info {
+            background: rgba(102, 126, 234, 0.1);
+            color: #4c51bf;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            #container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            #chat-display {
+                height: 250px;
+            }
+
+            #input-container {
+                flex-direction: column;
+            }
+
+            #send-button {
+                border-radius: 12px;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>🤖 El muñeco que habla</h2>
+
+        <div id="api-key-section">
+            <label for="replicate-api-key">🔑 Clave API de Replicate:</label>
+            <input type="password" id="replicate-api-key" placeholder="Introduce tu clave API de Replicate aquí...">
+        </div>
+
+        <div id="chat-interface">
+            <div id="chat-display">
+                <div class="message bot-message">
+                    ¡Hola! Soy tu muñeco que habla. Introduce tu clave API de Replicate y podremos empezar a chatear. 🎭
+                </div>
+            </div>
+            <div id="input-container">
+                <input type="text" id="user-message" placeholder="Escribe tu mensaje aquí..." disabled>
+                <button id="send-button" disabled>Enviar</button>
+            </div>
+        </div>
+
+        <div id="voice-interaction-section">
+            <button id="voice-button" disabled>🎤 Hablar con voz femenina</button>
+        </div>
+
+        <div id="status-display">
+            <span>Introduce tu clave API para comenzar...</span>
+        </div>
+    </div>
+
+    <script>
+        class ChatBot {
+            constructor() {
+                this.apiKey = '';
+                this.chatDisplay = document.getElementById('chat-display');
+                this.userMessageInput = document.getElementById('user-message');
+                this.sendButton = document.getElementById('send-button');
+                this.statusDisplay = document.getElementById('status-display');
+                this.voiceButton = document.getElementById('voice-button');
+                this.apiKeyInput = document.getElementById('replicate-api-key');
+                
+                this.initializeEventListeners();
+                this.conversationHistory = [];
+                this.isProcessing = false;
+            }
+
+            initializeEventListeners() {
+                // Clave API
+                this.apiKeyInput.addEventListener('input', (e) => {
+                    this.handleApiKeyChange(e.target.value);
+                });
+
+                // Mensaje del usuario
+                this.userMessageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !this.isProcessing) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Botón de envío
+                this.sendButton.addEventListener('click', () => {
+                    if (!this.isProcessing) {
+                        this.sendMessage();
+                    }
+                });
+
+                // Botón de voz
+                this.voiceButton.addEventListener('click', () => {
+                    if (!this.isProcessing) {
+                        this.handleVoiceInteraction();
+                    }
+                });
+            }
+
+            handleApiKeyChange(apiKey) {
+                this.apiKey = apiKey.trim();
+                
+                if (this.apiKey.length > 5) {
+                    this.userMessageInput.disabled = false;
+                    this.sendButton.disabled = false;
+                    this.voiceButton.disabled = false;
+                    this.updateStatus('API Key configurada correctamente. ¡Lista para chatear!', 'success');
+                    this.userMessageInput.placeholder = 'Escribe tu mensaje aquí...';
+                    this.userMessageInput.focus();
+                } else {
+                    this.userMessageInput.disabled = true;
+                    this.sendButton.disabled = true;
+                    this.voiceButton.disabled = true;
+                    this.updateStatus('Introduce tu clave API para comenzar...', 'info');
+                }
+            }
+
+            async sendMessage() {
+                const message = this.userMessageInput.value.trim();
+                if (!message || !this.apiKey || this.isProcessing) return;
+
+                this.isProcessing = true;
+                this.setButtonsState(true);
+
+                // Añadir mensaje del usuario al chat
+                this.addMessageToChat(message, 'user');
+                this.userMessageInput.value = '';
+
+                // Mostrar indicador de escritura
+                this.updateStatus('El muñeco está pensando...', 'info');
+                
+                try {
+                    const response = await this.callReplicateAPI(message);
+                    this.addMessageToChat(response, 'bot');
+                    this.updateStatus('Respuesta recibida correctamente', 'success');
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.addMessageToChat('Lo siento, hubo un error al procesar tu mensaje. Por favor, verifica tu clave API y tu conexión a internet.', 'bot');
+                    this.updateStatus('Error al comunicarse con el servidor', 'error');
+                } finally {
+                    this.isProcessing = false;
+                    this.setButtonsState(false);
+                    this.userMessageInput.focus();
+                }
+            }
+
+            setButtonsState(disabled) {
+                if (this.apiKey) {
+                    this.sendButton.disabled = disabled;
+                    this.voiceButton.disabled = disabled;
+                    this.userMessageInput.disabled = disabled;
+                }
+            }
+
+            async callReplicateAPI(message) {
+                // Simulación de llamada a la API - reemplaza esto con la llamada real
+                return new Promise((resolve, reject) => {
+                    // Simular tiempo de respuesta
+                    setTimeout(() => {
+                        if (Math.random() > 0.1) { // 90% de éxito
+                            const responses = [
+                                `¡Hola! Entiendo que me dijiste: "${message}". Como muñeco que habla, me emociona conversar contigo.`,
+                                `Qué interesante tu mensaje sobre "${message}". Déjame pensar en una respuesta apropiada.`,
+                                `Me encanta cuando me hablas. Tu mensaje "${message}" me hace reflexionar mucho.`,
+                                `Como muñeco parlante, aprecio tu comunicación. Sobre "${message}", tengo muchas cosas que decir.`,
+                                `Tu mensaje sobre "${message}" es fascinante. ¿Podrías contarme más detalles?`
+                            ];
+                            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                            resolve(randomResponse);
+                        } else {
+                            reject(new Error('Error de conexión simulado'));
+                        }
+                    }, 1500 + Math.random() * 2000);
+                });
+
+                // Código para la llamada real a Replicate API:
+                /*
+                try {
+                    const response = await fetch('https://api.replicate.com/v1/predictions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Token ${this.apiKey}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            version: "TU_VERSION_DEL_MODELO",
+                            input: {
+                                prompt: message,
+                                max_tokens: 500
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.output || "No pude generar una respuesta";
+                } catch (error) {
+                    throw new Error(`Error de API: ${error.message}`);
+                }
+                */
+            }
+
+            addMessageToChat(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.textContent = message;
+                
+                this.chatDisplay.appendChild(messageDiv);
+                this.chatDisplay.scrollTop = this.chatDisplay.scrollHeight;
+
+                // Almacenar en historial
+                this.conversationHistory.push({ 
+                    sender, 
+                    message, 
+                    timestamp: new Date().toLocaleString('es-ES') 
+                });
+            }
+
+            updateStatus(message, type) {
+                this.statusDisplay.innerHTML = '';
+                this.statusDisplay.className = `status-${type}`;
+                
+                if (type === 'info' && message.includes('pensando')) {
+                    const loader = document.createElement('span');
+                    loader.className = 'loading';
+                    this.statusDisplay.appendChild(loader);
+                }
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = message;
+                this.statusDisplay.appendChild(textSpan);
+            }
+
+            async handleVoiceInteraction() {
+                if (!this.apiKey || this.isProcessing) return;
+
+                this.isProcessing = true;
+                this.setButtonsState(true);
+                this.updateStatus('Iniciando interacción de voz...', 'info');
+
+                try {
+                    // Verificar soporte de reconocimiento de voz
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    
+                    if (!SpeechRecognition) {
+                        throw new Error('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome o Edge.');
+                    }
+
+                    await this.startVoiceRecognition();
+                } catch (error) {
+                    console.error('Error de interacción de voz:', error);
+                    this.updateStatus('Error en la interacción de voz: ' + error.message, 'error');
+                } finally {
+                    this.isProcessing = false;
+                    this.setButtonsState(false);
+                }
+            }
+
+            async startVoiceRecognition() {
+                return new Promise((resolve, reject) => {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    
+                    recognition.lang = 'es-ES';
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.maxAlternatives = 1;
+
+                    let timeoutId;
+
+                    recognition.onstart = () => {
+                        this.updateStatus('🎤 Escuchando... Habla ahora', 'info');
+                        this.voiceButton.textContent = '🔴 Grabando...';
+                        
+                        // Timeout de seguridad
+                        timeoutId = setTimeout(() => {
+                            recognition.stop();
+                            reject(new Error('Tiempo de escucha agotado'));
+                        }, 10000);
+                    };
+
+                    recognition.onresult = async (event) => {
+                        clearTimeout(timeoutId);
+                        
+                        if (event.results && event.results[0]) {
+                            const transcript = event.results[0][0].transcript;
+                            this.updateStatus('Procesando tu mensaje de voz...', 'info');
+                            
+                            try {
+                                // Añadir mensaje de voz al chat
+                                this.addMessageToChat(`🎤 ${transcript}`, 'user');
+                                
+                                // Obtener respuesta
+                                const response = await this.callReplicateAPI(transcript);
+                                this.addMessageToChat(response, 'bot');
+                   
